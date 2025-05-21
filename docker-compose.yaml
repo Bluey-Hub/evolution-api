@@ -1,3 +1,10 @@
+version: '3.8'
+
+networks:
+  retailtech_network:
+    name: retailtech_network
+    driver: bridge
+
 services:
   api:
     container_name: evolution_api
@@ -6,21 +13,23 @@ services:
     depends_on:
       - redis
     ports:
-      - "127.0.0.1:8080:8080"
+      - "8080:8080"
     volumes:
       - evolution_instances:/evolution/instances
     networks:
-      - evolution-net
       - retailtech_network
     env_file:
       - .env
+    environment:
+      - CORS_ORIGINS=https://frontend-agent-core.vercel.app
+      - CORS_METHODS=GET,POST,PUT,DELETE,OPTIONS
+      - CORS_HEADERS=Content-Type,Authorization
     expose:
       - 8080
 
   redis:
     image: redis:latest
     networks:
-      - evolution-net
       - retailtech_network
     container_name: redis
     command: >
@@ -31,10 +40,3 @@ services:
 volumes:
   evolution_instances:
   evolution_redis:
-
-networks:
-  evolution-net:
-    name: evolution-net
-    driver: bridge
-  retailtech_network:
-    external: true
